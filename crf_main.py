@@ -69,7 +69,7 @@ for i in range(iterations):
 	pred_train = crf_model.prediction_accuracy(Y_train, X_train, alphabet, Wf, Wt, len(Y_train))
 	print (i, pred_train, pred_test)
 
-	# train the crf using mini-batch sgd with nesterov momentum update
+	# train the crf using mini-batch sgd with nesterov momentum update and regularization
 	# mini-batch
 	index = np.random.randint(0, len(Y_train), batch_size)
 	train, label = [], []
@@ -81,14 +81,14 @@ for i in range(iterations):
 	Wf_grad = crf_model.feature_grad(label, train, alphabet, Wf, Wt)
 	Wt_grad = crf_model.transition_grad(label, train, alphabet, Wf, Wt)
 
-	# updating the weights using nesterov momentum sgd
+	# updating the weights using nesterov momentum sgd with regularization
 	v_prev_Wf = v_Wf
 	v_Wf = mu * v_Wf - learning_rate * Wf_grad
-	Wf += -mu * v_prev_Wf + (1 + mu) * v_Wf
+	Wf += -mu * v_prev_Wf + (1 + mu) * v_Wf - 2*0.01*Wf
 
 	v_prev_Wt = v_Wt
 	v_Wt = mu * v_Wt - learning_rate * Wt_grad
-	Wt += -mu * v_prev_Wt + (1 + mu) * v_Wt
+	Wt += -mu * v_prev_Wt + (1 + mu) * v_Wt - 2*0.01*Wt
 
 pred = crf_model.predict(Y_test, X_test, alphabet, Wf, Wt)
 print (pred)
